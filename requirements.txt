@@ -1,1 +1,6 @@
-fastapi[all]
+fastapi==0.111.0
+pydantic==2.7.4
+pandas==2.2.2
+scikit-learn==1.5.0
+joblib==1.4.2
+requests==2.31.0
