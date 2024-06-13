@@ -2,7 +2,6 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.ensemble import IsolationForest
 from joblib import load
 import pickle
 
@@ -13,7 +12,7 @@ anomaly_model = load('anomaly_model.joblib')
 with open('feature_names.pkl', 'rb') as f:
     feature_names = pickle.load(f)
 
-# Read the Excel file into a DataFrame
+# Read the Excel file into a DataFrame (assuming it's stored in the same directory)
 data = pd.read_excel("data/ENERGY.xlsx")
 
 # Drop irrelevant columns and datetime columns
@@ -91,41 +90,3 @@ def recommend_solutions_for_anomalies():
         }
         solutions.append(solution)
     return solutions
-
-# Run the app in Jupyter notebook
-def start_server():
-    import uvicorn
-    uvicorn.run(app, host='127.0.0.1', port=8000)
-from threading import Thread
-import time
-
-# Start the FastAPI server in a new thread
-thread = Thread(target=start_server)
-thread.start()
-
-# Give the server a few seconds to start
-time.sleep(5)
-
-# Now you can make requests to the server as usual
-
-import requests
-
-# Detect anomalies
-response = requests.get("http://127.0.0.1:8000/detect_anomalies")
-if response.status_code == 200:
-    anomalies = response.json()
-    print("Anomalies:", anomalies)
-else:
-    print("Failed to retrieve anomalies:", response.status_code)
-
-# Recommend solutions for all anomaly records
-response = requests.get("http://127.0.0.1:8000/recommend_solutions_for_anomalies")
-if response.status_code == 200:
-    solutions = response.json()
-    for solution in solutions:
-        anomaly_id = solution['AnomalyRecordID']
-        sol_id = solution['SolutionRecordID']
-        print(f"Solutions for anomaly record ID '{anomaly_id}':")
-        print(f"Solution RecordID: {sol_id}")
-else:
-    print("Failed to retrieve solutions:", response.status_code)
