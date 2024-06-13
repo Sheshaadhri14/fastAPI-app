@@ -14,7 +14,7 @@ with open('feature_names.pkl', 'rb') as f:
     feature_names = pickle.load(f)
 
 # Read the Excel file into a DataFrame
-data = pd.read_excel(r"C:\Users\SHESHAADHRI\OneDrive - vit.ac.in\GG\ENERGY.xlsx")
+data = pd.read_excel("data/ENERGY.xlsx")
 
 # Drop irrelevant columns and datetime columns
 data.drop(['UserID', 'Timestamp'], axis=1, inplace=True)
