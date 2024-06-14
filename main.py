@@ -4,6 +4,7 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from joblib import load
 import pickle
+from typing import List
 
 app = FastAPI()
 
@@ -59,7 +60,11 @@ def recommend_solutions(record_id, similarity_matrix, data):
 class RecordID(BaseModel):
     record_id: str
 
-@app.get('/detect_anomalies', response_model=list[str])
+class Solution(BaseModel):
+    AnomalyRecordID: str
+    SolutionRecordID: str
+
+@app.get('/detect_anomalies', response_model=List[str])
 def detect_anomalies():
     anomalies = anomaly_records['RecordID'].tolist()
     return anomalies
@@ -79,18 +84,14 @@ def recommend_solution(record: RecordID):
     }
     return response
 
-@app.get('/recommend_solutions_for_anomalies', response_model=list[dict])
+@app.get('/recommend_solutions_for_anomalies', response_model=List[Solution])
 def recommend_solutions_for_anomalies():
     solutions = []
     for record_id in anomaly_records['RecordID']:
         best_solution = recommend_solutions(record_id, similarity_matrix, data)
-        solution = {
-            'AnomalyRecordID': record_id,
-            'SolutionRecordID': str(best_solution['RecordID']),
-            'Location': str(best_solution['Location']),
-            'EngineType': str(best_solution.get('EngineType', 'Not available')),
-            'AmountConsumed': float(best_solution['AmountConsumed']),
-            'CO2Emissions (kg)': float(best_solution['CO2Emissions (kg)'])
-        }
+        solution = Solution(
+            AnomalyRecordID=record_id,
+            SolutionRecordID=str(best_solution['RecordID'])
+        )
         solutions.append(solution)
     return solutions
