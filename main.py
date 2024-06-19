@@ -89,9 +89,19 @@ def recommend_solutions_for_anomalies():
     solutions = []
     for record_id in anomaly_records['RecordID']:
         best_solution = recommend_solutions(record_id, similarity_matrix, data)
-        solution = Solution(
-            AnomalyRecordID=record_id,
-            SolutionRecordID=str(best_solution['RecordID'])
-        )
+        if best_solution is not None:
+            # If a suitable solution is found, include its RecordID
+            solution = Solution(
+                AnomalyRecordID=record_id,
+                SolutionRecordID=str(best_solution['RecordID'])
+            )
+        else:
+            # If no suitable solution is found, indicate that
+            solution = Solution(
+                AnomalyRecordID=record_id,
+                SolutionRecordID='No suitable record found'
+            )
+        # Append the solution (with or without a valid SolutionRecordID) to the list
         solutions.append(solution)
+        
     return solutions
